@@ -19,6 +19,7 @@
   // such as $x$. All others are captured by the second alternative.
   var inlineMathRE = /(?<!\\)\${1,2}([^\s\\])\${1,2}(?!\d)|(?<!\\)\${1,2}([^\s].*?[^\s\\])\${1,2}(?!\d)/g
   var multilineMathRE = /^\s*\$\$\s*$/
+  var asciimathRe = /`(.*?)`/g
   var mathMarkers = []
   var currentDocID = null
 
@@ -156,6 +157,14 @@
 
         // Enable on-click closing of rendered Math elements.
         elem.onclick = (e) => { textMarker.clear() }
+
+        if (asciimathRe.test(myMarker.eq)) {
+          const AsciiMathParser = require('./asciimath2tex.js')
+          const parser = new AsciiMathParser()
+          myMarker.eq = myMarker.eq.replace(asciimathRe, function(match, capture) {
+            return parser.parse(capture)
+          })
+        }
 
         require('katex').render(myMarker.eq, elem, { throwOnError: false })
 
